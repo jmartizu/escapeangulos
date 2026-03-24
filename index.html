@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Escape Room Ángulos</title>
+
+<style>
+body {
+    margin:0;
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    color: white;
+    text-align: center;
+}
+
+.screen { display:none; padding: 40px; }
+.active { display:block; }
+
+.container {
+    background: rgba(255,255,255,0.1);
+    padding: 30px;
+    border-radius: 15px;
+    max-width: 700px;
+    margin: auto;
+}
+
+input {
+    padding: 10px;
+    font-size: 18px;
+    border-radius: 8px;
+    border: none;
+}
+
+.correct { background: #4caf50 !important; color:white; }
+
+button {
+    padding: 12px 20px;
+    font-size: 18px;
+    border:none;
+    border-radius: 10px;
+    background: #ff9800;
+    color:white;
+    cursor:pointer;
+}
+
+button:hover { background:#e68900; }
+
+#timer { font-size: 30px; margin-bottom: 20px; }
+
+.progress {
+    height: 20px;
+    background: #333;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.bar {
+    height:100%;
+    width:0%;
+    background: #00e5ff;
+    border-radius: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- INICIO -->
+<div id="start" class="screen active">
+    <h1>🔐 ESCAPE ROOM: LOS ÁNGULOS</h1>
+    <div class="container">
+        <p>
+        Un sistema ha bloqueado la salida...  
+        Solo resolviendo todos los enigmas de ángulos podréis escapar.
+        </p>
+
+        <input id="name" placeholder="Nombre del grupo">
+        <br><br>
+        <button onclick="start()">🚀 Comenzar</button>
+    </div>
+</div>
+
+<!-- JUEGO -->
+<div id="game" class="screen">
+    <div class="container">
+
+        <div id="timer">50:00</div>
+
+        <div class="progress">
+            <div class="bar" id="bar"></div>
+        </div>
+
+        <h2 id="door"></h2>
+
+        <p id="question"></p>
+
+        <div id="draw"></div>
+
+        <input id="answer">
+        <br><br>
+        <button onclick="check()">Corregir</button>
+
+        <p id="msg"></p>
+    </div>
+</div>
+
+<!-- FINAL -->
+<div id="end" class="screen">
+    <h1>🎉 ¡ESCAPASTE!</h1>
+    <div class="container">
+        <div id="report"></div>
+    </div>
+</div>
+
+<script>
+
+let q = 0;
+let name = "";
+let attempts = [];
+
+// PREGUNTAS
+const data = [
+
+{q:"Convierte 3,5° a grados y minutos", a:"3 30"},
+{q:"Convierte 125 minutos a grados y minutos", a:"2 5"},
+
+{
+q:"Triángulo: 60° + 42° + A = 180°",
+a:"78",
+draw:`<svg width="200">
+<polygon points="50,150 150,150 100,50" fill="none" stroke="white"/>
+<text x="80" y="140">60°</text>
+<text x="110" y="140">42°</text>
+<text x="95" y="70">A</text>
+</svg>`
+},
+
+{
+q:"Pentágono: suma de ángulos interiores",
+a:"540",
+draw:`<svg width="200">
+<polygon points="100,20 180,80 150,160 50,160 20,80"
+fill="none" stroke="white"/>
+</svg>`
+},
+
+{
+q:"Ángulo inscrito 78°, arco = ?",
+a:"156",
+draw:`<svg width="200">
+<circle cx="100" cy="100" r="80" fill="none" stroke="white"/>
+<line x1="50" y1="150" x2="100" y2="20" stroke="white"/>
+<line x1="150" y1="150" x2="100" y2="20" stroke="white"/>
+<text x="90" y="100">78°</text>
+</svg>`
+},
+
+{
+q:"Ángulo en semicircunferencia = ?",
+a:"90",
+draw:`<svg width="200">
+<circle cx="100" cy="100" r="80" fill="none" stroke="white"/>
+<line x1="20" y1="100" x2="180" y2="100" stroke="white"/>
+<line x1="20" y1="100" x2="100" y2="20" stroke="white"/>
+</svg>`
+}
+
+];
+
+// START
+function start(){
+    name = document.getElementById("name").value;
+    if(name=="") return alert("Pon nombre");
+
+    document.getElementById("start").classList.remove("active");
+    document.getElementById("game").classList.add("active");
+
+    load();
+    timer();
+}
+
+// LOAD
+function load(){
+    let item = data[q];
+
+    document.getElementById("question").innerText = item.q;
+    document.getElementById("draw").innerHTML = item.draw || "";
+    document.getElementById("answer").value = "";
+    document.getElementById("msg").innerText = "";
+
+    document.getElementById("door").innerText =
+        "🚪 Puerta " + (Math.floor(q/2)+1);
+
+    document.getElementById("bar").style.width =
+        (q/data.length*100) + "%";
+}
+
+// CHECK
+function check(){
+    let input = document.getElementById("answer");
+
+    if(!attempts[q]) attempts[q]=0;
+    attempts[q]++;
+
+    if(input.value.trim()==data[q].a){
+        input.classList.add("correct");
+        document.getElementById("msg").innerText="✔ Correcto";
+
+        setTimeout(()=>{
+            input.classList.remove("correct");
+            q++;
+
+            if(q>=data.length) end();
+            else load();
+
+        },800);
+
+    } else {
+        document.getElementById("msg").innerText="❌ Intenta otra vez";
+    }
+}
+
+// TIMER
+function timer(){
+    let t=3000;
+
+    let interval = setInterval(()=>{
+        let m=Math.floor(t/60);
+        let s=t%60;
+
+        document.getElementById("timer").innerText =
+        m+":"+(s<10?"0":"")+s;
+
+        t--;
+        if(t<0){
+            clearInterval(interval);
+            end();
+        }
+
+    },1000);
+}
+
+// END + ENVÍO A GOOGLE FORMS
+function end(){
+    document.getElementById("game").classList.remove("active");
+    document.getElementById("end").classList.add("active");
+
+    let txt = `Grupo: ${name}\n\n`;
+
+    attempts.forEach((a,i)=>{
+        txt += `Pregunta ${i+1}: ${a} intentos\n`;
+    });
+
+    document.getElementById("report").innerHTML =
+        txt.replace(/\n/g,"<br>");
+
+    // ENVÍO OCULTO
+    fetch("https://docs.google.com/forms/d/e/1FAIpQLScPuVqyrK0qP_zYcTL_HIHmaZSQGu1swFXYiwVs1ccJZXZzjg/formResponse", {
+        method: "POST",
+        mode: "no-cors",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body:
+            "entry.1547892793=" + encodeURIComponent(name) +
+            "&entry.2059120573=" + encodeURIComponent(txt)
+    });
+}
+
+</script>
+
+</body>
+</html>
