@@ -88,6 +88,11 @@ svg { width:230px; }
     justify-content:center;
     font-size:40px;
 }
+
+/* VIDEO FINAL */
+#videoFinal {
+    margin-top:20px;
+}
 </style>
 </head>
 
@@ -146,9 +151,16 @@ svg { width:230px; }
 
 <!-- FINAL -->
 <div id="end" class="screen">
-<h1>🎉 ESCAPASTE</h1>
+<h1>🎉 ¡MISIÓN COMPLETADA!</h1>
+
 <div class="container">
 <div id="report"></div>
+
+<!-- VIDEO FINAL -->
+<video id="videoFinal" width="500" controls autoplay muted style="display:none;">
+  <source src="video/final.mp4" type="video/mp4">
+</video>
+
 </div>
 </div>
 
@@ -274,6 +286,7 @@ fill="none" stroke="white"/>
 ];
 
 // FUNCIONES
+
 function start(){
 name=document.getElementById("name").value;
 if(name=="") return alert("Pon nombre");
@@ -347,6 +360,11 @@ attempts.forEach((a,i)=>{txt+=`Pregunta ${i+1}: ${a} intentos\n`;});
 
 document.getElementById("report").innerHTML=txt.replace(/\n/g,"<br>");
 
+let video=document.getElementById("videoFinal");
+video.style.display="block";
+video.play();
+
+// ENVÍO GOOGLE FORMS
 fetch("https://docs.google.com/forms/d/e/1FAIpQLScPuVqyrK0qP_zYcTL_HIHmaZSQGu1swFXYiwVs1ccJZXZzjg/formResponse",{
 method:"POST",
 mode:"no-cors",
