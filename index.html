@@ -20,7 +20,7 @@ body {
     background: rgba(255,255,255,0.1);
     padding: 30px;
     border-radius: 15px;
-    max-width: 700px;
+    max-width: 900px;
     margin: auto;
 }
 
@@ -45,6 +45,29 @@ button {
 
 #timer { font-size: 30px; margin-bottom: 20px; }
 
+/* PUERTAS */
+#doors span {
+    padding:10px;
+    margin:5px;
+    background:#555;
+    border-radius:8px;
+}
+
+.open { background:#4caf50 !important; }
+
+/* CONTENIDO */
+#content {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+#left { width:50%; }
+#right { width:50%; }
+
+svg { width:220px; }
+
+/* PROGRESO */
 .progress {
     height: 20px;
     background: #333;
@@ -56,18 +79,6 @@ button {
     height:100%;
     width:0%;
     background: #00e5ff;
-}
-
-/* PUERTAS */
-#doors span {
-    padding:10px;
-    margin:5px;
-    background:#555;
-    border-radius:8px;
-}
-
-.open {
-    background:#4caf50 !important;
 }
 
 /* ANIMACIÓN */
@@ -122,13 +133,23 @@ button {
         </div>
 
         <h2 id="door"></h2>
-        <p id="question"></p>
 
-        <input id="answer">
-        <br><br>
-        <button onclick="check()">Corregir</button>
+        <div id="content">
+            <div id="left">
+                <p id="question"></p>
 
-        <p id="msg"></p>
+                <input id="answer">
+                <br><br>
+                <button onclick="check()">Corregir</button>
+
+                <p id="msg"></p>
+            </div>
+
+            <div id="right">
+                <div id="draw"></div>
+            </div>
+        </div>
+
     </div>
 </div>
 
@@ -146,34 +167,65 @@ let q=0;
 let name="";
 let attempts=[];
 
-// 24 PREGUNTAS
 const data=[
 
+// PUERTA 1
 {q:"2,5° a grados y minutos",a:"2 30"},
-{q:"Triángulo: 50° + 60° + A = 180°",a:"70"},
-{q:"Ángulo inscrito 30°, arco = ?",a:"60"},
+{
+q:"Triángulo: 50° + 60° + A = 180°",a:"70",
+draw:`<svg><polygon points="50,150 150,150 100,50" fill="none" stroke="white"/>
+<text x="70" y="140">50°</text>
+<text x="120" y="140">60°</text>
+<text x="95" y="70">A</text></svg>`
+},
+{
+q:"Ángulo inscrito 30°, arco = ?",a:"60",
+draw:`<svg><circle cx="100" cy="100" r="80" fill="none" stroke="white"/>
+<text x="90" y="100">30°</text></svg>`
+},
 {q:"120′ a grados y minutos",a:"2 0"},
 
+// PUERTA 2
 {q:"1,75° a grados y minutos",a:"1 45"},
-{q:"Cuadrilátero: 90° + 80° + 100° + A = 360°",a:"90"},
+{
+q:"Cuadrilátero: 90° + 80° + 100° + A = 360°",a:"90",
+draw:`<svg><polygon points="50,150 150,150 140,60 60,60"
+fill="none" stroke="white"/>
+<text x="60" y="140">90°</text>
+<text x="120" y="140">80°</text>
+<text x="120" y="70">100°</text>
+<text x="60" y="70">A</text></svg>`
+},
 {q:"Ángulo central 100°, inscrito = ?",a:"50"},
 {q:"210′ a grados y minutos",a:"3 30"},
 
+// PUERTA 3
 {q:"3° 30′ a grados decimales",a:"3.5"},
-{q:"Pentágono: suma de ángulos interiores",a:"540"},
+{
+q:"Pentágono: suma de ángulos interiores",a:"540",
+draw:`<svg><polygon points="100,20 180,80 150,160 50,160 20,80"
+fill="none" stroke="white"/></svg>`
+},
 {q:"Ángulo inscrito 45°, arco = ?",a:"90"},
 {q:"0,5° a grados y minutos",a:"0 30"},
 
+// PUERTA 4
 {q:"2,2° a grados y minutos",a:"2 12"},
-{q:"Hexágono regular: cada ángulo",a:"120"},
+{
+q:"Hexágono regular: cada ángulo",a:"120",
+draw:`<svg><polygon points="60,20 140,20 180,100 140,180 60,180 20,100"
+fill="none" stroke="white"/></svg>`
+},
 {q:"Cuadrilátero inscrito: opuesto de 80°",a:"100"},
 {q:"4° 15′ a minutos",a:"255"},
 
+// PUERTA 5
 {q:"0,25° a grados y minutos",a:"0 15"},
 {q:"Heptágono: suma de ángulos interiores",a:"900"},
 {q:"Ángulo central 140°, inscrito = ?",a:"70"},
 {q:"330′ a grados y minutos",a:"5 30"},
 
+// PUERTA 6
 {q:"1,6° a grados y minutos",a:"1 36"},
 {q:"Octógono regular: cada ángulo",a:"135"},
 {q:"Ángulo en semicircunferencia",a:"90"},
@@ -198,6 +250,7 @@ function load(){
     let item=data[q];
 
     document.getElementById("question").innerText=item.q;
+    document.getElementById("draw").innerHTML=item.draw || "";
     document.getElementById("answer").value="";
     document.getElementById("msg").innerText="";
 
@@ -239,7 +292,7 @@ function check(){
     }
 }
 
-// ABRIR PUERTA
+// PUERTA
 function openDoor(num){
     let door=document.getElementById("d"+num);
     door.classList.add("open");
@@ -251,9 +304,7 @@ function showDoor(){
     let d=document.getElementById("doorAnim");
     d.style.display="flex";
 
-    setTimeout(()=>{
-        d.style.display="none";
-    },1500);
+    setTimeout(()=>{ d.style.display="none"; },1500);
 }
 
 // TIMER
