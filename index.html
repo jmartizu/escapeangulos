@@ -58,7 +58,19 @@ button {
     background: #00e5ff;
 }
 
-/* PUERTA */
+/* PUERTAS */
+#doors span {
+    padding:10px;
+    margin:5px;
+    background:#555;
+    border-radius:8px;
+}
+
+.open {
+    background:#4caf50 !important;
+}
+
+/* ANIMACIÓN */
 #doorAnim {
     position: fixed;
     top:0; left:0;
@@ -83,7 +95,7 @@ button {
 <div id="start" class="screen active">
     <h1>🔐 ESCAPE ROOM: ÁNGULOS</h1>
     <div class="container">
-        <p>Resuelve los enigmas para abrir las 4 puertas y escapar.</p>
+        <p>Resuelve los enigmas para abrir las 6 puertas y escapar.</p>
         <input id="name" placeholder="Nombre del grupo">
         <br><br>
         <button onclick="start()">Comenzar</button>
@@ -96,13 +108,21 @@ button {
 
         <div id="timer">50:00</div>
 
+        <div id="doors">
+            <span id="d1">🚪1</span>
+            <span id="d2">🚪2</span>
+            <span id="d3">🚪3</span>
+            <span id="d4">🚪4</span>
+            <span id="d5">🚪5</span>
+            <span id="d6">🚪6</span>
+        </div>
+
         <div class="progress">
             <div class="bar" id="bar"></div>
         </div>
 
         <h2 id="door"></h2>
         <p id="question"></p>
-        <div id="draw"></div>
 
         <input id="answer">
         <br><br>
@@ -126,32 +146,38 @@ let q=0;
 let name="";
 let attempts=[];
 
-// PREGUNTAS MIXTAS
+// 24 PREGUNTAS
 const data=[
 
-// PUERTA 1
-{q:"3,5° a grados y minutos",a:"3 30"},
+{q:"2,5° a grados y minutos",a:"2 30"},
 {q:"Triángulo: 50° + 60° + A = 180°",a:"70"},
-{q:"Ángulo inscrito 40°, arco = ?",a:"80"},
-{q:"150 minutos a grados y minutos",a:"2 30"},
+{q:"Ángulo inscrito 30°, arco = ?",a:"60"},
+{q:"120′ a grados y minutos",a:"2 0"},
 
-// PUERTA 2
-{q:"2,25° a grados y minutos",a:"2 15"},
+{q:"1,75° a grados y minutos",a:"1 45"},
 {q:"Cuadrilátero: 90° + 80° + 100° + A = 360°",a:"90"},
-{q:"Ángulo central 120°, inscrito = ?",a:"60"},
-{q:"275′ a grados y minutos",a:"4 35"},
+{q:"Ángulo central 100°, inscrito = ?",a:"50"},
+{q:"210′ a grados y minutos",a:"3 30"},
 
-// PUERTA 3
-{q:"1,2° a grados y minutos",a:"1 12"},
+{q:"3° 30′ a grados decimales",a:"3.5"},
 {q:"Pentágono: suma de ángulos interiores",a:"540"},
-{q:"Cuadrilátero inscrito: opuesto de 70°",a:"110"},
-{q:"3° 45′ a grados decimales",a:"3.75"},
+{q:"Ángulo inscrito 45°, arco = ?",a:"90"},
+{q:"0,5° a grados y minutos",a:"0 30"},
 
-// PUERTA 4
-{q:"0,75° a grados y minutos",a:"0 45"},
+{q:"2,2° a grados y minutos",a:"2 12"},
 {q:"Hexágono regular: cada ángulo",a:"120"},
+{q:"Cuadrilátero inscrito: opuesto de 80°",a:"100"},
+{q:"4° 15′ a minutos",a:"255"},
+
+{q:"0,25° a grados y minutos",a:"0 15"},
+{q:"Heptágono: suma de ángulos interiores",a:"900"},
+{q:"Ángulo central 140°, inscrito = ?",a:"70"},
+{q:"330′ a grados y minutos",a:"5 30"},
+
+{q:"1,6° a grados y minutos",a:"1 36"},
+{q:"Octógono regular: cada ángulo",a:"135"},
 {q:"Ángulo en semicircunferencia",a:"90"},
-{q:"4° 20′ a minutos",a:"260"}
+{q:"5° 45′ a grados decimales",a:"5.75"}
 
 ];
 
@@ -172,7 +198,6 @@ function load(){
     let item=data[q];
 
     document.getElementById("question").innerText=item.q;
-    document.getElementById("draw").innerHTML="";
     document.getElementById("answer").value="";
     document.getElementById("msg").innerText="";
 
@@ -198,8 +223,9 @@ function check(){
             input.classList.remove("correct");
             q++;
 
-            // ANIMACIÓN CADA 4 PREGUNTAS
-            if(q%4==0){
+            if(q % 4 == 0){
+                let doorNum = q / 4;
+                openDoor(doorNum);
                 showDoor();
             }
 
@@ -213,7 +239,14 @@ function check(){
     }
 }
 
-// ANIMACIÓN PUERTA
+// ABRIR PUERTA
+function openDoor(num){
+    let door=document.getElementById("d"+num);
+    door.classList.add("open");
+    door.innerText="🔓 "+num;
+}
+
+// ANIMACIÓN
 function showDoor(){
     let d=document.getElementById("doorAnim");
     d.style.display="flex";
@@ -242,7 +275,7 @@ function timer(){
     },1000);
 }
 
-// END + ENVÍO
+// END + GOOGLE FORMS
 function end(){
     document.getElementById("game").classList.remove("active");
     document.getElementById("end").classList.add("active");
@@ -256,7 +289,6 @@ function end(){
     document.getElementById("report").innerHTML=
         txt.replace(/\n/g,"<br>");
 
-    // ENVÍO GOOGLE FORMS
     fetch("https://docs.google.com/forms/d/e/1FAIpQLScPuVqyrK0qP_zYcTL_HIHmaZSQGu1swFXYiwVs1ccJZXZzjg/formResponse",{
         method:"POST",
         mode:"no-cors",
